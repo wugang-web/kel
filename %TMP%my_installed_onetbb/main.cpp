@@ -73,19 +73,64 @@ public:
     void writeCSV(std::string filename) {
         // 将数据写入CSV文件
         std::ofstream csv_file(filename);
+        int count_less_than_5us = 0;
+        int count_less_than_2us = 0;
+        int count_less_than_1us = 0;
+        double max_duration = 0.0;
+
         for (int i = 0; i < num_iterations; ++i) {
             for (int j = 0; j < num_threads; ++j) {
-                csv_file << timing_data[j][i * 2 + 1];
-                if (j != num_threads - 1) {
-                    csv_file << ",";
+                double duration = timing_data[j][i * 2 + 1];
+
+                // 在循环开始时写入当前循环次数
+                if (j == 0) {
+                    csv_file << i + 1;  // 写入循环次数，i + 1 是因为循环次数从1开始
                 }
-                else {
+
+                // 写入计时数据
+                csv_file << "," << duration;
+
+                // 更新计数变量
+                if (duration <= 5.0) {
+                    count_less_than_5us++;
+                }
+                if (duration <= 2.0) {
+                    count_less_than_2us++;
+                }
+                if (duration <= 1.0) {
+                    count_less_than_1us++;
+                }
+                if (duration > max_duration) {
+                    max_duration = duration;
+                }
+
+                // 在每行结束时添加换行符
+                if (j == num_threads - 1) {
                     csv_file << std::endl;
                 }
             }
         }
+
+        double total_iterations = num_iterations * num_threads;
+        double less_than_5us_percentage = (count_less_than_5us / total_iterations) * 100.0;
+        double less_than_2us_percentage = (count_less_than_2us / total_iterations) * 100.0;
+        double less_than_1us_percentage = (count_less_than_1us / total_iterations) * 100.0;
+
+        csv_file << "Count less than 5us: " << count_less_than_5us << " (" << less_than_5us_percentage << "%)" << std::endl;
+        csv_file << "Count less than 2us: " << count_less_than_2us << " (" << less_than_2us_percentage << "%)" << std::endl;
+        csv_file << "Count less than 1us: " << count_less_than_1us << " (" << less_than_1us_percentage << "%)" << std::endl;
+        csv_file << "Max duration: " << max_duration << std::endl;
+
+        // 同时在控制台输出信息
+        std::cout << "Count less than 5us: " << count_less_than_5us << " (" << less_than_5us_percentage << "%)" << std::endl;
+        std::cout << "Count less than 2us: " << count_less_than_2us << " (" << less_than_2us_percentage << "%)" << std::endl;
+        std::cout << "Count less than 1us: " << count_less_than_1us << " (" << less_than_1us_percentage << "%)" << std::endl;
+        std::cout << "Max duration: " << max_duration << std::endl;
+
         csv_file.close();
     }
+
+
 };
 
 int main() {
@@ -98,5 +143,8 @@ int main() {
     // 将数据写入CSV文件
     processor.writeCSV("timing_data.csv");
 
+    // 等待用户输入任意字符退出程序
+    std::cout << "Enter any character to exit...";
+    std::cin.get();  // 等待用户输入任意字符
     return 0;
 }
