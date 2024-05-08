@@ -1,0 +1,5 @@
+/tmp/oneTBB-2021.12.0/oneTBB/build/%TMP%my_installed_onetbb
+g++ -I ./include -L ./lib64  -std=c++14  -o test_program mian.cpp -ltbb
+export LD_LIBRARY_PATH=/tmp/oneTBB-2021.12.0/oneTBB/build/%TMP%my_installed_onetbb/lib64/:$LD_LIBRARY_PATH
+https://github.com/oneapi-src/oneTBB/blob/master/INSTALL.md
+docker run --cpus="-1" your_image_name
